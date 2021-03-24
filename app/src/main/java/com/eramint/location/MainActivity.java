@@ -20,30 +20,24 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.common.api.Result;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
 import static com.eramint.location.ForegroundOnlyLocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST;
 import static com.eramint.location.ForegroundOnlyLocationService.NOTIFICATION_CHANNEL_ID;
-import static com.eramint.location.NoLocationDialog.showNoLocationDialog;
 import static com.eramint.location.SharedPreferenceUtil.toText;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34;
@@ -73,13 +67,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         }
     };
-    private LocationManager manager;
     private ForegroundOnlyBroadcastReceiver foregroundOnlyBroadcastReceiver;
-    private SharedPreferences sharedPreferences;
     private LocalBroadcastManager localBroadcastManager;
     private TextView outputTextView;
     private NotificationManager notificationManager;
 
+    private LocationManager manager;
     public LocationManager getLocationManager() {
         if (manager == null)
             manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -92,12 +85,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return foregroundOnlyBroadcastReceiver;
     }
 
-    private SharedPreferences getSharedPreferences() {
-        if (sharedPreferences == null)
-            this.sharedPreferences = this.getSharedPreferences(this.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        return sharedPreferences;
-    }
 
     public LocalBroadcastManager getLocalBroadcastManager() {
         if (localBroadcastManager == null)
@@ -138,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onStart();
 
 
-        getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+//        getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
         Intent serviceIntent = new Intent(this, ForegroundOnlyLocationService.class);
         this.bindService(serviceIntent, this.foregroundOnlyServiceConnection, Context.BIND_AUTO_CREATE);
@@ -156,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         if (!getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER))
             showLocationPrompt();
-//            showNoLocationDialog(getLocationManager(), this);
     }
 
     protected void onPause() {
@@ -195,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             this.unbindService(this.foregroundOnlyServiceConnection);
             this.foregroundOnlyLocationServiceBound = false;
         }
-        getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+//        getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         super.onStop();
     }
 
