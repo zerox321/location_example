@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,14 +21,20 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.common.api.Result;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -114,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         outputTextView = findViewById(R.id.output_text_view);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.setShowBadge(true);
             notificationChannel.enableVibration(true);
             getNotificationManager().createNotificationChannel(notificationChannel);
@@ -148,7 +155,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 
         if (!getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER))
-            showNoLocationDialog(getLocationManager(), this);
+            showLocationPrompt();
+//            showNoLocationDialog(getLocationManager(), this);
     }
 
     protected void onPause() {
@@ -156,46 +164,32 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onPause();
     }
 
-//    private fun showLocationPrompt() {
-//        LocationRequest locationRequest =  LocationRequest.create();
-//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); =
-//        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-//
-//        Task<LocationSettingsResponse>  result= LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
-//
-//        result.addOnCompleteListener { task ->
-//            try {
-//                val response = task.getResult(ApiException::class.java)
-//                // All location settings are satisfied. The client can initialize location
-//                // requests here.
-//            } catch (exception: ApiException) {
-//                when (exception.statusCode) {
-//                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-//                        try {
-//                            // Cast to a resolvable exception.
-//                            val resolvable: ResolvableApiException = exception as ResolvableApiException
-//                            // Show the dialog by calling startResolutionForResult(),
-//                            // and check the result in onActivityResult().
-//                            resolvable.startResolutionForResult(
-//                                    activity, LocationRequest.PRIORITY_HIGH_ACCURACY
-//                            )
-//                        } catch (e: IntentSender.SendIntentException) {
-//                            // Ignore the error.
-//                        } catch (e: ClassCastException) {
-//                            // Ignore, should be an impossible error.
-//                        }
-//                    }
-//                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-//                        // Location settings are not satisfied. But could be fixed by showing the
-//                        // user a dialog.
-//
-//                        // Location settings are not satisfied. However, we have no way to fix the
-//                        // settings so we won't show the dialog.
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private void showLocationPrompt() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
+        result.addOnCompleteListener(task -> {
+            try {
+                LocationSettingsResponse response = task.getResult(ApiException.class);
+
+            } catch (ApiException e) {
+                if (e.getStatusCode() == LocationSettingsStatusCodes.RESOLUTION_REQUIRED && e instanceof ResolvableApiException) {
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    try {
+                        resolvable.startResolutionForResult(this, LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    } catch (IntentSender.SendIntentException sendIntentException) {
+                        sendIntentException.printStackTrace();
+                    }
+                }
+                e.printStackTrace();
+
+            }
+
+        });
+
+    }
+
     protected void onStop() {
         if (this.foregroundOnlyLocationServiceBound) {
             this.unbindService(this.foregroundOnlyServiceConnection);
