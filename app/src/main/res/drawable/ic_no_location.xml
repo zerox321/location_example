@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <path
+        android:fillColor="#F3F3F3"
+        android:pathData="M296.533,443.733l-149.333,54.4l-147.2,-64l112,-150.4l80,16l73.6,-12.8l97.067,16l149.333,209.067z" />
+    <path
+        android:fillColor="#66C6B9"
+        android:pathData="M93.867,333.867l-56.534,85.333l117.334,45.867l14.933,-68.267z" />
+    <path
+        android:fillColor="#FFD15C"
+        android:pathData="M167.467,368l10.666,-5.333l11.734,-54.4l-69.334,-14.934l-17.066,26.667z" />
+    <path
+        android:fillColor="#CED6E0"
+        android:pathData="M245.333,341.333l-65.066,37.334l71.466,54.4l40.534,-13.867l-11.734,-58.667z" />
+    <path
+        android:fillColor="#4EC0AA"
+        android:pathData="M258.133,333.867l19.2,9.6l-4.266,-19.2z" />
+    <path
+        android:fillColor="#CED6E0"
+        android:pathData="M250.667,323.2l-38.4,-19.2l-22.4,4.267l-11.734,54.4z" />
+    <path
+        android:fillColor="#4EC0AA"
+        android:pathData="M169.6,396.8l-14.933,68.267l68.266,-22.4z" />
+    <path
+        android:fillColor="#4EC0AA"
+        android:pathData="M262.4,316.8l8.533,-4.267l-4.266,-19.2l-37.334,7.467z" />
+    <path
+        android:fillColor="#66C6B9"
+        android:pathData="M273.067,324.267l4.266,19.2l138.667,70.4l-66.133,-105.6l-37.334,-6.4z" />
+    <path
+        android:fillColor="#66C6B9"
+        android:pathData="M295.467,298.667l-28.8,-5.334l4.266,19.2z" />
+    <path
+        android:fillColor="#FFD15C"
+        android:pathData="M280.533,360.533l11.734,58.667l154.666,45.867l-11.733,-20.267z" />
+    <path
+        android:fillColor="#F3705A"
+        android:pathData="M401.067,145.067c0,80 -145.067,234.667 -145.067,234.667s-145.067,-153.6 -145.067,-234.667S176,0 256,0S401.067,65.067 401.067,145.067z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M256,145.067m-82.133,0a82.133,82.133 0,1 1,164.266 0a82.133,82.133 0,1 1,-164.266 0" />
+</vector>
