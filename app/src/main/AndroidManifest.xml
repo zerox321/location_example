@@ -2,15 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.eramint.location">
 
-    <!-- Required for foreground services on P+. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Required for foreground services on P+. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <uses-permission android:name="android.permission.BLUETOOTH" android:required="false" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
 
     <application
@@ -34,8 +36,9 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
-        <receiver android:name=".GpsLocationReceiver"
-            android:exported="false" >
+        <receiver
+            android:name=".GpsLocationReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.location.PROVIDERS_CHANGED" />
                 <category android:name="android.intent.category.DEFAULT" />

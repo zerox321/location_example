@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         getLocalBroadcastManager().registerReceiver(getForegroundOnlyBroadcastReceiver(), new IntentFilter(ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST));
 
 
-        if (!getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER))
+        if (foregroundPermissionApproved() && !getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER))
             showLocationPrompt(this);
     }
 
