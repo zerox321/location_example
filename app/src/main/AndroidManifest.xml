@@ -3,11 +3,14 @@
     package="com.eramint.location">
 
     <!-- Required for foreground services on P+. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" android:required="false" />
 
 
     <application

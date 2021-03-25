@@ -7,8 +7,8 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.util.Log;
 
-import static com.eramint.location.NoLocationNotification.dismissNoLocationNotification;
-import static com.eramint.location.NoLocationNotification.showNoLocationNotification;
+import static com.eramint.location.LocationUtil.dismissNoLocationNotification;
+import static com.eramint.location.LocationUtil.showNoLocationNotification;
 
 public class GpsLocationReceiver extends BroadcastReceiver {
     private final static String TAG = "LocationProviderChanged";

@@ -7,9 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -20,21 +18,17 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import static com.eramint.location.ForegroundOnlyLocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST;
 import static com.eramint.location.ForegroundOnlyLocationService.NOTIFICATION_CHANNEL_ID;
+import static com.eramint.location.LocationUtil.showLocationPrompt;
 import static com.eramint.location.SharedPreferenceUtil.toText;
 
 public class MainActivity extends AppCompatActivity {
@@ -73,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private NotificationManager notificationManager;
 
     private LocationManager manager;
+
     public LocationManager getLocationManager() {
         if (manager == null)
             manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -84,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
             this.foregroundOnlyBroadcastReceiver = new MainActivity.ForegroundOnlyBroadcastReceiver();
         return foregroundOnlyBroadcastReceiver;
     }
-
 
 
     public LocalBroadcastManager getLocalBroadcastManager() {
@@ -118,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         GpsLocationReceiver br = new GpsLocationReceiver();
         IntentFilter filter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(br, filter);
-
+        Toast.makeText(this, "NetworkType: " + SharedPreferenceUtil.getNetworkType(this), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -126,11 +120,8 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
 
-//        getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
         Intent serviceIntent = new Intent(this, ForegroundOnlyLocationService.class);
         this.bindService(serviceIntent, this.foregroundOnlyServiceConnection, Context.BIND_AUTO_CREATE);
-
 
     }
 
@@ -138,12 +129,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-
         getLocalBroadcastManager().registerReceiver(getForegroundOnlyBroadcastReceiver(), new IntentFilter(ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST));
 
 
         if (!getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER))
-            showLocationPrompt();
+            showLocationPrompt(this);
     }
 
     protected void onPause() {
@@ -151,45 +141,15 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    private void showLocationPrompt() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-        Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
-        result.addOnCompleteListener(task -> {
-            try {
-                LocationSettingsResponse response = task.getResult(ApiException.class);
-
-            } catch (ApiException e) {
-                if (e.getStatusCode() == LocationSettingsStatusCodes.RESOLUTION_REQUIRED && e instanceof ResolvableApiException) {
-                    ResolvableApiException resolvable = (ResolvableApiException) e;
-                    try {
-                        resolvable.startResolutionForResult(this, LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    } catch (IntentSender.SendIntentException sendIntentException) {
-                        sendIntentException.printStackTrace();
-                    }
-                }
-                e.printStackTrace();
-
-            }
-
-        });
-
-    }
 
     protected void onStop() {
         if (this.foregroundOnlyLocationServiceBound) {
             this.unbindService(this.foregroundOnlyServiceConnection);
             this.foregroundOnlyLocationServiceBound = false;
         }
-//        getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         super.onStop();
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-//        if (key.equals(KEY_FOREGROUND_ENABLED))
-//            this.updateButtonState(sharedPreferences.getBoolean(KEY_FOREGROUND_ENABLED, false));
-    }
 
     private boolean foregroundPermissionApproved() {
         return ActivityCompat.checkSelfPermission(this, "android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED;
